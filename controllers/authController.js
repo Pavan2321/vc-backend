@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const ResUtil = require("../utils/res");
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -8,13 +9,23 @@ const loginUser = async (req, res) => {
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return ResUtil.VALIDATION_ERROR(
+        req,
+        res,
+        {},
+        "Invalid email or password"
+      );
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return ResUtil.VALIDATION_ERROR(
+        req,
+        res,
+        {},
+        "Invalid email or password"
+      );
     }
 
     // Generate JWT token
@@ -23,15 +34,26 @@ const loginUser = async (req, res) => {
     });
 
     // Send token and user details
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
+    ResUtil.SUCCESS(
+      req,
+      res,
+      {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+        },
       },
-    });
+      "User Login Successful"
+    );
   } catch (error) {
+    ResUtil.SERVER_ERROR(
+      req,
+      res,
+      { error: error.message },
+      "Error while Login"
+    );
     res.status(500).json({ error: error.message });
   }
 };

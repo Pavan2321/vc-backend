@@ -1,12 +1,18 @@
 const Order = require("../models/orderModel");
+const ResUtil = require("../utils/res");
 
 const createOrder = async (req, res) => {
   const { user, products } = req.body;
   try {
     const order = await Order.create({ user, products });
-    res.status(201).json(order);
+    ResUtil.SUCCESS(req, res, { order }, "Order Created SuccessFully.");
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    ResUtil.VALIDATION_ERROR(
+      req,
+      res,
+      { error: error.message },
+      "Error while Creating Order"
+    );
   }
 };
 
@@ -15,10 +21,16 @@ const getOrder = async (req, res) => {
     const order = await Order.findById(req.params.id).populate(
       "products.product"
     );
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json(order);
+    if (!order)
+      return ResUtil.VALIDATION_ERROR(
+        req,
+        res,
+        { error: error.message },
+        "ORDER_NOT_FOUND"
+      );
+    ResUtil.SUCCESS(req, res, { order }, "SUCCESS");
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    ResUtil.VALIDATION_ERROR(req, res, { error: error.message }, "ERROR");
   }
 };
 
@@ -27,9 +39,9 @@ const getUserOrders = async (req, res) => {
     const orders = await Order.find({ user: req.params.id }).populate(
       "products.product"
     );
-    res.json(orders);
+    ResUtil.SUCCESS(req, res, { orders }, "SUCCESS");
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    ResUtil.VALIDATION_ERROR(req, res, { error: error.message }, "ERROR");
   }
 };
 

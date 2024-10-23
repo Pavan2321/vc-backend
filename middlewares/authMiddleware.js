@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const ResUtil = require("../utils/res");
 
 const protect = async (req, res, next) => {
   let token;
@@ -13,10 +14,15 @@ const protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select("-password");
       next();
     } catch (error) {
-      res.status(401).json({ error: "Not authorized, token failed" });
+      ResUtil.UNAUTHORIZED(
+        req,
+        res,
+        { error: "Not authorized, token failed" },
+        "ERROR"
+      );
     }
   } else {
-    res.status(401).json({ error: "No token provided" });
+    ResUtil.UNAUTHORIZED(req, res, { error: "No token provided" }, "ERROR");
   }
 };
 
