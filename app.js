@@ -8,6 +8,7 @@ const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const authRoutes = require("./routes/authRoutes");
+const introRoutes = require("./routes/introRoutes");
 
 const app = express();
 app.use(express.json());
@@ -16,7 +17,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error(err));
-
+  
+app.use("", introRoutes)
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", productRoutes);
 app.use("/api/v1", orderRoutes);
